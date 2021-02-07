@@ -94,6 +94,7 @@ const rc = (function () {
     function cleanFields(form) {
         if (form.tagName === 'FORM') {
             const fields = form.querySelectorAll('input[type="text"], input[type="checkbox"], select, textarea');
+            
             const reset = field => {
                 field.checked = false;
                 field.value = '';
@@ -105,6 +106,7 @@ const rc = (function () {
 
     function upperCaseFirst() {
         const inputs = document.querySelectorAll('.rc-uppercase-first');
+        const patternUpperCaseFirst = /^[a-zàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšž∂ð]/;
 
         if (inputs.length !== 0) {
             const addUpperCaseFirstListener = inputarea => {
@@ -117,15 +119,17 @@ const rc = (function () {
             }
 
             const convertToUpperCase = event => {
-                const patternUpperCaseFirst = /^(.){0,1}/g;
-                const inputareaVal = event.currentTarget.value;
+                const inputArea = event.currentTarget;
+                const inputareaVal = inputArea.value;
+                
+                if(patternUpperCaseFirst.test(inputareaVal)) {
+                    const focusStartPos = inputArea.selectionStart;
+                    const focusEndPos = inputArea.selectionEnd;
 
-                //TODO QUANDO SE APAGA A PRIMEIRA LETRA O CURSOR VAI PARA O FINAL DO TEXTO
-                event.currentTarget.value = inputareaVal.replace(patternUpperCaseFirst, (letter) => {
-                    const isFirstLetter = patternUpperCaseFirst.test(letter);
-                    console.log(letter);
-                    return letter.toUpperCase()
-                });
+                    inputArea.value = inputareaVal.replace(patternUpperCaseFirst, letter => letter.toUpperCase());
+
+                    inputArea.setSelectionRange(focusStartPos, focusEndPos);
+                }
             }
 
             inputs.forEach(addUpperCaseFirstListener);
@@ -219,10 +223,10 @@ const rc = (function () {
         random: random,
         serialize: serialize,
         cleanFields: cleanFields,
-        upperCaseFirst: upperCaseFirst(),
-        numericKeyboard: numericKeyboard(),
+        space: space(),
         upperCase: upperCase(),
-        space: space()
+        upperCaseFirst: upperCaseFirst(),
+        numericKeyboard: numericKeyboard()
     };
 
 })();
