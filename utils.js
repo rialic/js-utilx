@@ -1,5 +1,10 @@
 const rc = (function () {
 
+    /**
+     * Return true if variable is empty and false if not.
+     * 
+     * @param val Variable to be evaluated
+     */
     function empty(val) {
         if (typeof val === 'object') {
             if (val !== null) {
@@ -75,6 +80,11 @@ const rc = (function () {
         return null;
     }
 
+    /**
+     * Serialize a json and return.
+     * 
+     * @param object Json to be serialized
+     */
     function serialize(object) {
         let encodedString = '';
 
@@ -91,6 +101,11 @@ const rc = (function () {
         return encodedString;
     }
 
+    /**
+     * Clear all fields inside a form
+     * 
+     * @param form Javascript form selector to clear all fields
+     */
     function cleanFields(form) {
         if (form.tagName === 'FORM') {
             const fields = form.querySelectorAll('input[type="text"], input[type="checkbox"], select, textarea');
@@ -104,8 +119,11 @@ const rc = (function () {
         }
     }
 
+    /**
+     * It convert the first letter of text in Upper Case
+     */
     function upperCaseFirst() {
-        const inputs = document.querySelectorAll('.rc-uppercase-first');
+        const inputs = document.querySelectorAll('[data-rc="first-uppercase"]');
         const patternUpperCaseFirst = /^[a-zàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšž∂ð]/;
 
         if (inputs.length !== 0) {
@@ -136,8 +154,11 @@ const rc = (function () {
         }
     }
 
+    /**
+     * It convert all text in Upper Case letters
+     */
     function upperCase() {
-        const inputs = document.querySelectorAll('.rc-uppercase');
+        const inputs = document.querySelectorAll('[data-rc="uppercase"]');
 
         if (inputs.length !== 0) {
             const addUpperCaseListener = inputarea => {
@@ -155,8 +176,11 @@ const rc = (function () {
         }
     }
 
+    /**
+     * It show numeric keyboard on mobile phones
+     */
     function numericKeyboard() {
-        const inputs = document.querySelectorAll('.rc-numeric-keyboard');
+        const inputs = document.querySelectorAll('[data-rc="numeric-keyboard"]');
         const isAppleBrowser = /iPhone|iPad|iPod/i.test(navigator.userAgent);
         const isFirefoxBrowser = /firefox/i.test(navigator.userAgent);
 
@@ -187,7 +211,7 @@ const rc = (function () {
     }
 
     /**
-     * It remove spaces in the begin or end of input text and textarea while typing.
+     * It remove spaces in the begin and end of input text and textarea while typing.
      */
     function space() {
         const inputs = document.querySelectorAll('textarea, input[type="text"]');
