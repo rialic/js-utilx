@@ -9,29 +9,23 @@ const rc = (function () {
         if (typeof val === 'object') {
             if (val !== null) {
                 const getObjectInstanceVal = () => Object.prototype.toString.call(val);
-
                 const getArrayLength = () => val.length;
                 const getObjectLength = () => Object.keys(val).length;
-
-                const getObjectStringLength = () => {
-                    if (val instanceof String) {
-                        return getObjectLength();
-                    }
-                }
-
-                const getObjectBooleanValueOf = () => {
-                    if (val instanceof Boolean) {
-                        return val.valueOf();
-                    }
-                }
-
-                const getObjectNumberValueOf = () => {
-                    if (val instanceof Number) {
-                        return val.valueOf()
-                    }
-                }
-
                 const _default = () => val.valueOf();
+
+                const getValueOf = () => {
+                    let valueOf;
+                    const instanceList = [String, Boolean, Number];
+
+                    for(let instan of instanceList){
+                        if(val instanceof instan) {
+                            valueOf = val.valueOf();
+                            break;
+                        }
+                    }
+
+                    return valueOf;
+                }
 
                 const objectList = {
                     '[object Array]': getArrayLength,
@@ -41,9 +35,9 @@ const rc = (function () {
                     '[object HTMLCollection]': getObjectLength,
                     '[object DOMTokenList]': getObjectLength,
                     '[object NamedNodeMap]': getObjectLength,
-                    '[object String]': getObjectStringLength,
-                    '[object Boolean]': getObjectBooleanValueOf,
-                    '[object Number]': getObjectNumberValueOf,
+                    '[object String]': getValueOf,
+                    '[object Boolean]': getValueOf,
+                    '[object Number]': getValueOf,
                     'default': _default
                 };
 
@@ -61,23 +55,28 @@ const rc = (function () {
      */
     function random(finalVal) {
         let initVal = 0;
-
         const argumentsLength = arguments.length;
         const firstArg = Math.trunc(arguments[0]);
         const secondArg = Math.trunc(arguments[1]);
+        const generateRandomNumber = (argumentsLength, firstArg, secondArg) => {
+            const lengthHasUpTwoArgs = argumentsLength >= 1 && argumentsLength <= 2;
+            const lengthHasTwoArgs = argumentsLength === 2;
 
-        if (argumentsLength >= 1 && argumentsLength <= 2) {
-            finalVal = firstArg;
-
-            if (argumentsLength === 2) {
-                initVal = firstArg;
-                finalVal = secondArg;
+            if (lengthHasUpTwoArgs) {
+                finalVal = firstArg;
+    
+                if (lengthHasTwoArgs) {
+                    initVal = firstArg;
+                    finalVal = secondArg;
+                }
+    
+                return Math.floor(Math.random() * (finalVal - initVal + 1)) + initVal;
             }
 
-            return Math.floor(Math.random() * (finalVal - initVal + 1)) + initVal;
-        }
+            return null;
+        }        
 
-        return null;
+        return generateRandomNumber(argumentsLength, firstArg, secondArg);
     }
 
     /**
@@ -107,16 +106,9 @@ const rc = (function () {
      * @param form Javascript form selector to clear all fields
      */
     function cleanFields(form) {
-        if (form.tagName === 'FORM') {
-            const fields = form.querySelectorAll('input[type="text"], input[type="checkbox"], select, textarea');
-            
-            const reset = field => {
-                field.checked = false;
-                field.value = '';
-            }
+        const isFormTag = form.tagName === 'FORM';
 
-            fields.forEach(reset);
-        }
+        if (isFormTag) form.reset();
     }
 
     /**
@@ -125,22 +117,24 @@ const rc = (function () {
     function upperCaseFirst() {
         const inputs = document.querySelectorAll('[data-rc="first-uppercase"]');
         const patternUpperCaseFirst = /^[a-zàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšž∂ð]/;
+        const hasUpperCaseFirstInputs = inputs.length !== 0;
 
-        if (inputs.length !== 0) {
+        if (hasUpperCaseFirstInputs) {
             const addUpperCaseFirstListener = inputarea => {
                 const isInputTag = inputarea.tagName === 'INPUT';
                 const isTextAreaTag = inputarea.tagName === 'TEXTAREA';
 
                 if(isInputTag || isTextAreaTag) {
-                    inputarea.addEventListener('input', convertToUpperCase);
+                    inputarea.addEventListener('input', handleConvertToUpperCase);
                 }
             }
 
-            const convertToUpperCase = event => {
+            const handleConvertToUpperCase = event => {
                 const inputArea = event.currentTarget;
                 const inputareaVal = inputArea.value;
+                const hasLetter = patternUpperCaseFirst.test(inputareaVal);
                 
-                if(patternUpperCaseFirst.test(inputareaVal)) {
+                if(hasLetter) {
                     const focusStartPos = inputArea.selectionStart;
                     const focusEndPos = inputArea.selectionEnd;
 
@@ -159,18 +153,17 @@ const rc = (function () {
      */
     function upperCase() {
         const inputs = document.querySelectorAll('[data-rc="uppercase"]');
+        const hasUpperCaseInputs = inputs.length !== 0;
 
-        if (inputs.length !== 0) {
+        if (hasUpperCaseInputs) {
             const addUpperCaseListener = inputarea => {
                 const isInputTag = inputarea.tagName === 'INPUT';
                 const isTextAreaTag = inputarea.tagName === 'TEXTAREA';
 
-                if(isInputTag || isTextAreaTag) {
-                    inputarea.addEventListener('input', convertToUpperCase);
-                }
+                if(isInputTag || isTextAreaTag) inputarea.addEventListener('input', handleConvertToUpperCase);
             }
 
-            const convertToUpperCase = event => event.currentTarget.value = event.currentTarget.value.toUpperCase();
+            const handleConvertToUpperCase = event => event.currentTarget.value = event.currentTarget.value.toUpperCase();
 
             inputs.forEach(addUpperCaseListener);
         }
@@ -183,8 +176,9 @@ const rc = (function () {
         const inputs = document.querySelectorAll('[data-rc="numeric-keyboard"]');
         const isAppleBrowser = /iPhone|iPad|iPod/i.test(navigator.userAgent);
         const isFirefoxBrowser = /firefox/i.test(navigator.userAgent);
+        const hasNumericInputs = inputs.length !== 0;
 
-        if (inputs.length !== 0) {
+        if (hasNumericInputs) {
             const handleNumericAttributes = input => {
                 const isInputTag = input.tagName === 'INPUT';
                 const isTextAreaTag = inputarea.tagName === 'TEXTAREA';
@@ -217,36 +211,27 @@ const rc = (function () {
         const inputs = document.querySelectorAll('textarea, input[type="text"]');
 
         const addInputEventListeners = input => {
-            const removeSpaceOnInput = () => {
+            const handleRemoveSpaceOnInput = () => {
                 const spacePattern = /^\s+/g;
+                const hasSpaceInBeginning = spacePattern.test(input.value);
 
-                if (spacePattern.test(input.value)) {
-                    input.value = input.value.replace(spacePattern, '');
-                }
+                if (hasSpaceInBeginning) input.value = input.value.replace(spacePattern, '');
             }
 
-            const removeSpaceOnBlur = () => {
-                const spacePattern = /\s+$/g;
+            const handleRemoveSpaceOnBlur = () => input.value = input.value.trim();
 
-                if (spacePattern.test(input.value)) {
-                    input.value = input.value.replace(spacePattern, '');
-                }
-
-                input.value.trim();
-            }
-
-            input.addEventListener('input', removeSpaceOnInput);
-            input.addEventListener('blur', removeSpaceOnBlur);
+            input.addEventListener('input', handleRemoveSpaceOnInput);
+            input.addEventListener('blur', handleRemoveSpaceOnBlur);
         }
 
         inputs.forEach(addInputEventListeners);
     }
 
     return {
-        empty: empty,
-        random: random,
-        serialize: serialize,
-        cleanFields: cleanFields,
+        empty,
+        random,
+        serialize,
+        cleanFields,
         space: space(),
         upperCase: upperCase(),
         upperCaseFirst: upperCaseFirst(),
