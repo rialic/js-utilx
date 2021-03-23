@@ -1,24 +1,23 @@
 const rc = (function () {
 
     /**
-     * Return true if variable is empty and false if not.
-     * 
-     * @param val Variable to be evaluated
+     * Return true if variable is empty or false if not.
+     * @param {Object} val - Value to be evaluated
+     * @returns {boolean}
      */
-    function empty(val) {
+    const empty = val => {
         if (typeof val === 'object') {
             if (val !== null) {
                 const getObjectInstanceVal = () => Object.prototype.toString.call(val);
                 const getArrayLength = () => val.length;
                 const getObjectLength = () => Object.keys(val).length;
                 const _default = () => val.valueOf();
-
                 const getValueOf = () => {
                     let valueOf;
                     const instanceList = [String, Boolean, Number];
 
-                    for(let instan of instanceList){
-                        if(val instanceof instan) {
+                    for (let instan of instanceList) {
+                        if (val instanceof instan) {
                             valueOf = val.valueOf();
                             break;
                         }
@@ -50,41 +49,41 @@ const rc = (function () {
 
     /**
      * Return the random number in a initial range and final range.
-     * @param initVal It will be use to set the inital value in the range. (Optional)
-     * @param finalVal If provided, it will be used to set the final value in the range.
+     * @param {number} initVal - It will be use to set the inital value in the range. (Optional)
+     * @param {number} finalVal - If provided, it will be used to set the final value in the range.
+     * @returns {number} - Number chosen
      */
-    function random(finalVal) {
+    const random = (...args) => {
         let initVal = 0;
-        const argumentsLength = arguments.length;
-        const firstArg = Math.trunc(arguments[0]);
-        const secondArg = Math.trunc(arguments[1]);
-        const generateRandomNumber = (argumentsLength, firstArg, secondArg) => {
-            const lengthHasUpTwoArgs = argumentsLength >= 1 && argumentsLength <= 2;
-            const lengthHasTwoArgs = argumentsLength === 2;
+        let firstArg = args[0];
+        let secondArg = args[1];
+        const argsLengthEqualTwo = args.length === 2;
+        const isNumberFirstArg = typeof firstArg === 'number';
+        const isNumberSecondArg = (argsLengthEqualTwo) ? typeof secondArg === 'number' : true;
 
-            if (lengthHasUpTwoArgs) {
-                finalVal = firstArg;
-    
-                if (lengthHasTwoArgs) {
-                    initVal = firstArg;
-                    finalVal = secondArg;
-                }
-    
-                return Math.floor(Math.random() * (finalVal - initVal + 1)) + initVal;
+        if (isNumberFirstArg && isNumberSecondArg) {
+            firstArg = Math.trunc(firstArg);
+            secondArg = Math.trunc(secondArg);
+
+            finalVal = firstArg;
+
+            if (argsLengthEqualTwo) {
+                initVal = firstArg;
+                finalVal = secondArg;
             }
 
-            return null;
-        }        
+            return Math.floor(Math.random() * (finalVal - initVal + 1)) + initVal;
+        }
 
-        return generateRandomNumber(argumentsLength, firstArg, secondArg);
+        return;
     }
 
     /**
      * Serialize a json and return.
-     * 
-     * @param object Json to be serialized
+     * @param {Object} object - JSON to be serialized
+     * @returns {string} - String serialized from object
      */
-    function serialize(object) {
+    const serialize = object => {
         let encodedString = '';
 
         for (let prop in object) {
@@ -102,129 +101,159 @@ const rc = (function () {
 
     /**
      * Clear all fields inside a form
-     * 
-     * @param form Javascript form selector to clear all fields
+     * @param {Object} form - HTML Form to clear all fields
      */
-    function cleanFields(form) {
+    const cleanFields = form => {
         const isFormTag = form.tagName === 'FORM';
 
         if (isFormTag) form.reset();
     }
 
     /**
+     * Return HTML element with attributes and return it.
+     * @typedef {Object} HTML - HTML
+     * @param {string} elementName - Given name to html element.
+     * @param {Object.<string, string|number>} attributes - Attributes from HTML element.
+     * @returns {HTML} - HTML element made
+     */
+    const makeElement = (elementName, attributes) => {
+        const isValidStringEl = typeof elementName === 'string' && Boolean(elementName);
+        const isValidObjectAttr = typeof attributes === 'object' && Boolean(attributes);
+
+        if (isValidStringEl && isValidObjectAttr) {
+            const element = document.createElement(elementName);
+            const attributeList = Object.entries(attributes);
+            const defineElementAttr = ([key, value]) => element.setAttribute(key, value);
+
+            attributeList.forEach(defineElementAttr);
+
+            return element;
+        }
+
+        return;
+    }
+
+    /**
      * It convert the first letter of text in Upper Case
      */
-    function upperCaseFirst() {
-        const inputs = document.querySelectorAll('[data-rc="first-uppercase"]');
+    const upperCaseFirst = () => {
+        const inputsEl = document.querySelectorAll('[data-rc="first-uppercase"]');
+
         const patternUpperCaseFirst = /^[a-zàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšž∂ð]/;
-        const hasUpperCaseFirstInputs = inputs.length !== 0;
+        const hasUpperCaseFirstInputsEl = inputsEl.length !== 0;
 
-        if (hasUpperCaseFirstInputs) {
-            const addUpperCaseFirstListener = inputarea => {
-                const isInputTag = inputarea.tagName === 'INPUT';
-                const isTextAreaTag = inputarea.tagName === 'TEXTAREA';
+        if (hasUpperCaseFirstInputsEl) {
+            const defineUpperCaseFirstListener = inputEl => {
+                const isInputEl = inputEl.tagName === 'INPUT';
+                const isTextAreaEl = inputEl.tagName === 'TEXTAREA';
 
-                if(isInputTag || isTextAreaTag) {
-                    inputarea.addEventListener('input', handleConvertToUpperCase);
+                if (isInputEl || isTextAreaEl) {
+                    inputEl.addEventListener('input', handleConvertToUpperCase);
                 }
             }
 
             const handleConvertToUpperCase = event => {
-                const inputArea = event.currentTarget;
-                const inputareaVal = inputArea.value;
-                const hasLetter = patternUpperCaseFirst.test(inputareaVal);
-                
-                if(hasLetter) {
-                    const focusStartPos = inputArea.selectionStart;
-                    const focusEndPos = inputArea.selectionEnd;
+                const inputEl = event.target;
+                const hasLetter = patternUpperCaseFirst.test(inputEl.value);
 
-                    inputArea.value = inputareaVal.replace(patternUpperCaseFirst, letter => letter.toUpperCase());
+                if (hasLetter) {
+                    const focusStartPos = inputEl.selectionStart;
+                    const focusEndPos = inputEl.selectionEnd;
 
-                    inputArea.setSelectionRange(focusStartPos, focusEndPos);
+                    inputEl.value = inputEl.value.replace(patternUpperCaseFirst, letter => letter.toUpperCase());
+
+                    inputEl.setSelectionRange(focusStartPos, focusEndPos);
                 }
             }
 
-            inputs.forEach(addUpperCaseFirstListener);
+            inputsEl.forEach(defineUpperCaseFirstListener);
         }
     }
 
     /**
      * It convert all text in Upper Case letters
      */
-    function upperCase() {
-        const inputs = document.querySelectorAll('[data-rc="uppercase"]');
-        const hasUpperCaseInputs = inputs.length !== 0;
+    const upperCase = () => {
+        const inputsEl = document.querySelectorAll('[data-rc="uppercase"]');
+        const hasUpperCaseInputs = inputsEl.length !== 0;
 
         if (hasUpperCaseInputs) {
-            const addUpperCaseListener = inputarea => {
-                const isInputTag = inputarea.tagName === 'INPUT';
-                const isTextAreaTag = inputarea.tagName === 'TEXTAREA';
-
-                if(isInputTag || isTextAreaTag) inputarea.addEventListener('input', handleConvertToUpperCase);
+            const handleConvertToUpperCase = event => {
+                event.target.value = event.target.value.toUpperCase();
             }
 
-            const handleConvertToUpperCase = event => event.currentTarget.value = event.currentTarget.value.toUpperCase();
+            const defineUpperCaseListener = inputEl => {
+                const isInputEl = inputEl.tagName === 'INPUT';
+                const isTextAreaEl = inputEl.tagName === 'TEXTAREA';
 
-            inputs.forEach(addUpperCaseListener);
+                if (isInputEl || isTextAreaEl) inputEl.addEventListener('input', handleConvertToUpperCase);
+            }
+
+            inputsEl.forEach(defineUpperCaseListener);
         }
     }
 
     /**
      * It show numeric keyboard on mobile phones
      */
-    function numericKeyboard() {
-        const inputs = document.querySelectorAll('[data-rc="numeric-keyboard"]');
+    const numericKeyboard = () => {
+        const inputsEl = document.querySelectorAll('[data-rc="numeric-keyboard"]');
+
         const isAppleBrowser = /iPhone|iPad|iPod/i.test(navigator.userAgent);
         const isFirefoxBrowser = /firefox/i.test(navigator.userAgent);
-        const hasNumericInputs = inputs.length !== 0;
+        const hasNumericInputs = inputsEl.length !== 0;
 
         if (hasNumericInputs) {
-            const handleNumericAttributes = input => {
-                const isInputTag = input.tagName === 'INPUT';
-                const isTextAreaTag = inputarea.tagName === 'TEXTAREA';
+            const handleNumericAttributes = inputEl => {
+                const isInputEl = inputEl.tagName === 'INPUT';
+                const isTextAreaEl = inputEl.tagName === 'TEXTAREA';
 
-                if(isInputTag || isTextAreaTag) {
-                    input.setAttribute('pattern', '[0-9\-]*');
-                    input.setAttribute('inputmode', 'numeric');
-                    input.removeAttribute('type');
-    
+                if (isInputEl || isTextAreaEl) {
+                    inputEl.setAttribute('pattern', '[0-9\-]*');
+                    inputEl.setAttribute('inputmode', 'numeric');
+                    inputEl.removeAttribute('type');
+
                     if (isAppleBrowser) {
-                        input.removeAttribute('inputmode');
+                        inputEl.removeAttribute('inputmode');
                     }
-    
+
                     if (isFirefoxBrowser) {
-                        input.removeAttribute('inputmode');
-                        input.removeAttribute('pattern');
-                        input.setAttribute('type', 'tel');
+                        inputEl.removeAttribute('inputmode');
+                        inputEl.removeAttribute('pattern');
+                        inputEl.setAttribute('type', 'tel');
                     }
                 }
             }
 
-            inputs.forEach(handleNumericAttributes);
+            inputsEl.forEach(handleNumericAttributes);
         }
     }
 
     /**
      * It remove spaces in the begin and end of input text and textarea while typing.
      */
-    function space() {
-        const inputs = document.querySelectorAll('textarea, input[type="text"]');
+    const space = () => {
+        const inputsEl = document.querySelectorAll('textarea, input[type="text"]');
 
-        const addInputEventListeners = input => {
+        const defineInputEventListener = inputEl => {
             const handleRemoveSpaceOnInput = () => {
                 const spacePattern = /^\s+/g;
-                const hasSpaceInBeginning = spacePattern.test(input.value);
+                const hasSpaceInBeginning = spacePattern.test(inputEl.value);
 
-                if (hasSpaceInBeginning) input.value = input.value.replace(spacePattern, '');
+                if (hasSpaceInBeginning) {
+                    inputEl.value = inputEl.value.replace(spacePattern, '');
+                }
             }
 
-            const handleRemoveSpaceOnBlur = () => input.value = input.value.trim();
+            const handleRemoveSpaceOnBlur = () => {
+                inputEl.value = inputEl.value.trim();
+            }
 
-            input.addEventListener('input', handleRemoveSpaceOnInput);
-            input.addEventListener('blur', handleRemoveSpaceOnBlur);
+            inputEl.addEventListener('input', handleRemoveSpaceOnInput);
+            inputEl.addEventListener('blur', handleRemoveSpaceOnBlur);
         }
 
-        inputs.forEach(addInputEventListeners);
+        inputsEl.forEach(defineInputEventListener);
     }
 
     return {
@@ -232,11 +261,10 @@ const rc = (function () {
         random,
         serialize,
         cleanFields,
+        makeElement,
         space: space(),
         upperCase: upperCase(),
         upperCaseFirst: upperCaseFirst(),
         numericKeyboard: numericKeyboard()
     };
-
 })();
-
