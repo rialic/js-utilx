@@ -116,7 +116,7 @@ const rc = (function () {
      * @param {Object.<string, string|number>} attributes - Attributes from HTML element.
      * @returns {HTML} - HTML element made
      */
-    const makeElement = (elementName, attributes) => {
+    const makeElement = (elementName, attributes = {}) => {
         const isValidStringEl = typeof elementName === 'string' && Boolean(elementName);
         const isValidObjectAttr = typeof attributes === 'object' && Boolean(attributes);
 
