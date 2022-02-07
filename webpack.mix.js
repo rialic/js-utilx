@@ -1,0 +1,1 @@
+require('laravel-mix').scripts('./utilx.js', './dist/utilx.min.js')

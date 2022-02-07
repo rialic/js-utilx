@@ -1,4 +1,14 @@
-const rc = (function() {
+export const {
+  empty,
+  random,
+  serialize,
+  cleanFields,
+  makeElement,
+  space,
+  upperCase,
+  upperCaseFirst,
+  numericKeyboard
+} = (() => {
 
   /**
      * Return true if variable is empty or false if not.
@@ -48,13 +58,14 @@ const rc = (function() {
   }
 
   /**
-     * Return the random number in a initial range and final range.
-     * @param {number} initVal - It will be use to set the inital value in the range. (Optional)
-     * @param {number} finalVal - If provided, it will be used to set the final value in the range.
-     * @returns {number} - Number chosen
-     */
+   * Return the random number in a initial range and final range.
+   * @param {number} initVal - It will be use to set the inital value in the range. (Optional)
+   * @param {number} finalVal - If provided, it will be used to set the final value in the range.
+   * @returns {number} - Number chosen
+   */
   const random = (...args) => {
     let initVal = 0
+    let finalVal = null
     let firstArg = args[0]
     let secondArg = args[1]
     const argsLengthEqualTwo = args.length === 2
@@ -79,20 +90,20 @@ const rc = (function() {
   }
 
   /**
-     * Serialize a json and return.
-     * @param {Object} object - JSON to be serialized
-     * @returns {string} - String serialized from object
-     */
-  const serialize = object => {
+   * Serialize a json and return.
+   * @param {Object} object - JSON to be serialized
+   * @returns {string} - String serialized from object
+   */
+  const serialize = obj => {
     let encodedString = ''
 
-    for (let prop in object) {
-      if (object.hasOwnProperty(prop)) {
+    for (let prop in obj) {
+      if (obj.hasOwnProperty(prop)) {
         if (encodedString.length > 0) {
           encodedString += '&'
         }
 
-        encodedString += encodeURI(prop + '=' + object[prop])
+        encodedString += encodeURI(prop + '=' + obj[prop])
       }
     }
 
@@ -100,23 +111,23 @@ const rc = (function() {
   }
 
   /**
-     * Clear all fields inside a form
-     * @param {Object} form - HTML Form to clear all fields
-     */
-  const cleanFields = form => {
+   * Clear all fields inside a form
+   * @param {Object} form - HTML Form to clear all fields
+   */
+  const cleanForm = form => {
     const isFormTag = form.tagName === 'FORM'
 
     if (isFormTag) form.reset()
   }
 
   /**
-     * Return HTML element with attributes and return it.
-     * @typedef {Object} HTML - HTML
-     * @param {string} elementName - Given name to html element.
-     * @param {Object.<string, string|number>} attributes - Attributes from HTML element.
-     * @returns {HTML} - HTML element made
-     */
-  const makeElement = (elementName, attributes) => {
+   * Return HTML element with attributes and return it.
+   * @typedef {Object} HTML - HTML
+   * @param {string} elementName - Given name to html element.
+   * @param {Object.<string, string|number>} attributes - Attributes from HTML element.
+   * @returns {HTML} - HTML element made
+   */
+  const makeElement = (elementName, attributes = {}) => {
     const isValidStringEl = typeof elementName === 'string' && Boolean(elementName)
     const isValidObjectAttr = typeof attributes === 'object' && Boolean(attributes)
 
@@ -134,10 +145,10 @@ const rc = (function() {
   }
 
   /**
-     * It convert the first letter of text in Upper Case
-     */
+   * It convert the first letter of text in Upper Case
+   */
   const upperCaseFirst = () => {
-    const inputsEl = document.querySelectorAll('[data-rc="first-uppercase"]')
+    const inputsEl = document.querySelectorAll('[data-js="first-uppercase"]')
 
     const patternUpperCaseFirst = /^[a-zàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšž∂ð]/
     const hasUpperCaseFirstInputsEl = inputsEl.length !== 0
@@ -171,10 +182,10 @@ const rc = (function() {
   }
 
   /**
-     * It convert all text in Upper Case letters
-     */
+   * It convert all text in Upper Case letters
+   */
   const upperCase = () => {
-    const inputsEl = document.querySelectorAll('[data-rc="uppercase"]')
+    const inputsEl = document.querySelectorAll('[data-js="uppercase"]')
     const hasUpperCaseInputs = inputsEl.length !== 0
 
     if (hasUpperCaseInputs) {
@@ -194,10 +205,10 @@ const rc = (function() {
   }
 
   /**
-     * It show numeric keyboard on mobile phones
-     */
+   * It show numeric keyboard on mobile phones
+   */
   const numericKeyboard = () => {
-    const inputsEl = document.querySelectorAll('[data-rc="numeric-keyboard"]')
+    const inputsEl = document.querySelectorAll('[data-js="numeric-keyboard"]')
 
     const isAppleBrowser = /iPhone|iPad|iPod/i.test(navigator.userAgent)
     const isFirefoxBrowser = /firefox/i.test(navigator.userAgent)
@@ -230,8 +241,8 @@ const rc = (function() {
   }
 
   /**
-     * It remove spaces in the begin and end of input text and textarea while typing.
-     */
+   * It remove spaces in the begin and end of input text and textarea while typing.
+   */
   const space = () => {
     const inputsEl = document.querySelectorAll('textarea, input[type="text"]')
 
@@ -256,15 +267,17 @@ const rc = (function() {
     inputsEl.forEach(defineInputEventListener)
   }
 
+
   return {
     empty,
     random,
     serialize,
-    cleanFields,
+    cleanForm,
     makeElement,
     space: space(),
     upperCase: upperCase(),
     upperCaseFirst: upperCaseFirst(),
     numericKeyboard: numericKeyboard()
   }
+
 })()
