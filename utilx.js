@@ -3,6 +3,7 @@ export const {
   random,
   serialize,
   cleanFields,
+  copyTextToClipboard,
   makeElement,
   space,
   upperCase,
@@ -118,6 +119,55 @@ export const {
     const isFormTag = form.tagName === 'FORM'
 
     if (isFormTag) form.reset()
+  }
+
+  /**
+     * Return Promise with value true or false.
+     * @typedef {Boolean} - true or false
+     * @param {string} text - Given text to copy to clipboard.
+     * @returns {Promise} - Promise
+     */
+  const copyTextToClipboard = (text) => {
+    return new Promise((resolve, reject) => {
+      if (!navigator.clipboard) {
+        (async() => await fallbackCopyTextToClipboard.call(this, text))()
+          .then(() => resolve(true))
+          .catch(() => reject(false))
+
+        return
+      }
+
+      navigator.clipboard.writeText(text)
+        .then(() => resolve(true))
+        .catch(() => reject(false))
+    })
+  }
+
+  function fallbackCopyTextToClipboard(text) {
+    return new Promise((resolve, reject) => {
+      const textArea = document.createElement('textarea')
+      textArea.value = text
+
+      textArea.style.top = '0'
+      textArea.style.left = '0'
+      textArea.style.position = 'fixed'
+
+      document.body.appendChild(textArea)
+      textArea.focus()
+      textArea.select()
+
+      try {
+        const successful = document.execCommand('copy')
+
+        if (successful) {
+          resolve(true)
+        }
+      } catch (err) {
+        reject(false)
+      }
+
+      document.body.removeChild(textArea)
+    })
   }
 
   /**
@@ -273,6 +323,7 @@ export const {
     random,
     serialize,
     cleanForm,
+    copyTextToClipboard,
     makeElement,
     space: space(),
     upperCase: upperCase(),
